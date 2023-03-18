@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Update
+{% endblock %}
+
+{% block main %}
+<div class="container">
+
+
+        <h1 class="mb-4">Actualiza el vuelo: {{ vuelo.id }} </h1>
+        <form action="/update/{{ vuelo.id }}" method="POST">
+            <div class="mb-3">
+                <input autocomplete="off" autofocus class="form-control mx-auto w-50 mb-2" 
+                id="origin" name="origin" placeholder="Enter a origin" required
+                value="{{ vuelo.origin }}">
+    
+                <input autocomplete="off" autofocus class="form-control mx-auto w-50 mb-2" 
+                id="destination" name="destination" placeholder="Enter a destination" required
+                value="{{ vuelo.destination }}">
+    
+                <input autocomplete="off" autofocus class="form-control mx-auto w-50 mb-2" 
+                id="duration" name="duration" placeholder="Enter a duration" required
+                type="number" min="0" max="9999"
+                value="{{ vuelo.duration }}">
+            </div>
+            <button class="btn btn-primary" type="submit">Actualizar Vuelo</button>
+        </form>
+
+    
+</div>
+
+{% endblock %}
