@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 
+{% block styles %}
+    <link href="/static/index.css" rel="stylesheet">
+{% endblock %}
+
 {% block title %}
     Inicio
 {% endblock %}
@@ -7,48 +11,105 @@
 {% block main %}
 <div class="container">
 
-    <h1>APLICACION DE LIBROS</h1>
-    <br>
-    <br>
-    
-    <h2 class="mb-4">Lista de Vuelos</h2>
-    <table class="table table-striped table-hover">
-        <!-- <caption>Dashboard</caption> -->
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Origen</th>
-                <th scope="col">Destino</th>
-                <th scope="col">Duración</th>
-                <th scope="col">Actualizar</th>
-                <th scope="col">Borrar</th>
-            </tr>
-        </thead>
-
-        <tbody>
-
-            
-        </tbody>
-    </table>
-
-    <div style="margin-top: 50px;">
-        <h2 class="mb-4">Formulario de Vuelos</h2>
+    <h3 class="mb-6">Busca un libro! </h3>
+    <div style="margin-top: 30px; margin-bottom: 70px;">
+        <h2 class="mb-4"></h2>
         <form action="/" method="post">
             <div class="mb-3">
+                <div class="mx-auto w-50 mb-2" id="radio_container">
+                    <span>
+                        <input id="ISBN" type="radio" name="search_param" value="ISBN" required checked>
+                        <label for="ISBN">Número ISBN</label>
+                    </span>
+                    <span>
+                        <input id="book" type="radio" name="search_param" value="book" required>
+                        <label for="book">Título del libro</label>
+                    </span>
+                    <span>
+                        <input id="author" type="radio" name="search_param" value="author" required>
+                        <label for="author">Nombre del autor</label>
+                    </span>
+                </div>
+                
                 <input autocomplete="off" autofocus class="form-control mx-auto w-50 mb-2" 
-                id="origin" name="origin" placeholder="Enter a origin" required>
+                id="text" name="text" placeholder="" required>
     
-                <input autocomplete="off" autofocus class="form-control mx-auto w-50 mb-2" 
-                id="destination" name="destination" placeholder="Enter a destination" required>
-    
-                <input autocomplete="off" autofocus class="form-control mx-auto w-50 mb-2" 
-                id="duration" name="duration" placeholder="Enter a duration" required
-                type="number" min="0" max="9999">
             </div>
-            <button class="btn btn-primary" type="submit">Ingresar Vuelo</button>
+            <button class="btn btn-primary" type="submit">Buscar</button>
         </form>
     </div>
     
+    <div id="listaLibrosContainer">
+        <h3 class="mb-4">Lista de libros de: {{ text1 }}</h3>
+        <table class="table table-striped table-hover">
+            <!-- <caption>Dashboard</caption> -->
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nombre del libro</th>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">Autor(es)</th>
+                    <th scope="col">VER LIBRO</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for libro in libros %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ libro.book_title }}</td>
+                        <td>{{ libro.isbn }}</td>
+                        <td>{{ libro.authors }}</td>
+                        <td><a href="/buyAuto/{{ libro.book_id }}/"><i class="fa-solid fa-cart-shopping"></i></a></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5">No hay libros que coincidan con tu búsqueda.</td>
+                    </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    </div>
+       
 </div>
+
+
+<script>
+    // Mostrar o no la lista de libros según si se hizo una búsqueda o no
+    const verLista = {{ esBusqueda }};
+
+    if (verLista) {
+        document.getElementById('listaLibrosContainer').style.display = 'block';
+    } else {
+        document.getElementById('listaLibrosContainer').style.display = 'none';
+    }
+    
+
+    // Cambiar el placeholder del input según el radio button seleccionado
+    function change_input_placeholder()
+    {
+        const radioButtons = document.getElementsByName('search_param');
+        for (let radio of radioButtons) {
+            if (radio.checked) {
+                const label = document.querySelector(`label[for='${radio.id}']`);
+                document.getElementById('text').placeholder = `Buscar libro según el ${label.textContent}`;
+            }
+        }
+    }
+    
+    // Evento para cambiar el placeholder del input según el radio button seleccionado
+    document.querySelector('#radio_container').onclick = () => {
+        change_input_placeholder();
+    };
+
+    // Inicializar el placeholder del input
+    change_input_placeholder();
+
+    
+
+
+
+</script>
 
 {% endblock %}

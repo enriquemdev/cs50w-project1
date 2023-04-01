@@ -36,3 +36,7 @@ CREATE TABLE book_reviews (
     review_content TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE INDEX idx_ISBN ON books (ISBN);
+CREATE INDEX idx_titulo_libro ON books (book_title);
+CREATE INDEX idx_nombre_autor ON authors (author_name);

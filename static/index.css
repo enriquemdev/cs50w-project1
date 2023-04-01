@@ -1,0 +1,22 @@
+#radio_container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  #radio_container div:first-child {
+    margin-right: auto;
+  }
+  
+  #radio_container div:last-child {
+    margin-left: auto;
+  }
+
+  label{
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  h1 {
+    font-size: 26px;
+  }

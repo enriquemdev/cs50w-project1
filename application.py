@@ -5,7 +5,7 @@ from flask_session import Session
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import check_password_hash, generate_password_hash
-from helpers import login_required
+from helpers import login_required, apology
 
 app = Flask(__name__)
 
@@ -112,9 +112,59 @@ def logout():
     return redirect("/")
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    return render_template("index.html")
-
-
+    if request.method == "GET":
+        return render_template("index.html", esBusqueda="false")
+    
+    elif request.method == "POST":
+        text1 = request.form.get("text")
+        search_param = request.form.get("search_param")
+        
+        if not text1 or not search_param:
+            return apology("Llena todos los campos para la búsqueda please")
+        
+        query = """
+                SELECT books.book_id, books.ISBN as isbn, books.book_title,
+                string_agg(authors.author_name, ', ') AS authors
+                FROM books 
+                INNER JOIN book_authors ON books.book_id = book_authors.id_book
+                INNER JOIN authors ON book_authors.id_author = authors.author_id
+                WHERE(
+                """
+                
+        # Using lower function bc it makes the search case insensitive
+        if search_param == "ISBN":
+            query += """
+                     (LOWER(books.ISBN) LIKE :ISBN)
+                     """
+        elif search_param == "book":
+            query += """
+                     (LOWER(books.book_title) LIKE :book_title)
+                     """
+        elif search_param == "author":
+            query += """
+                     (LOWER(authors.author_name) LIKE :author_name)
+                     """
+                     
+        query += """
+                 )
+                 GROUP BY books.book_id
+                 ORDER BY books.book_title
+                 """
+                    
+        query = text(query)
+        
+        resultado = db.execute(query,{"ISBN": ("%"+text1+"%"), "book_title": ("%"+text1+"%"), 
+                            "author_name": ("%"+text1+"%")})     
+        
+        # This is a list of lists(a list of the rows)
+        librosObtenidos = resultado.fetchall()
+        
+        # Kristin Hannah is repeated through the authors
+        # The Mask has two authors
+        
+        db.commit()
+        
+        return render_template("index.html", libros=librosObtenidos, esBusqueda="true", text1=text1)
