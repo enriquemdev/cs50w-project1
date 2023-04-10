@@ -30,11 +30,13 @@ CREATE TABLE book_authors (
 
 CREATE TABLE book_reviews (
     review_id SERIAL PRIMARY KEY NOT NULL,
-    revew_book INT NOT NULL,
+    review_book INT NOT NULL,
     review_user INT NOT NULL,
     review_points INTEGER NOT NULL,
     review_content TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    FOREIGN KEY (review_book) REFERENCES books(book_id),
+    FOREIGN KEY (review_user) REFERENCES users(user_id)
 );
 
 CREATE INDEX idx_ISBN ON books (ISBN);

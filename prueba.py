@@ -75,3 +75,22 @@ if __name__ == "__main__":
     #                 """)
     #     db.execute(query,{"ISBN": isbn, "book_title": title, 
     #                         "book_author": authorExists.author_id, "book_year": year})   
+    
+    
+    # tbody
+    {% if libro %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ libro.book_title }}</td>
+                        <td>{{ libro.isbn }}</td>
+                        <td>{{ libro.authors }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">No hay datos para mostrar</td>
+                    </tr>
+                {% endfor %}
+                
+                
+                
+  # mi api: AIzaSyArH5L21QIcx-C2tb_eO315X9rdXfH5vuM

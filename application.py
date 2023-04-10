@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import login_required, apology
+import requests #para hacer peticiones a la api de goodreads
 
 app = Flask(__name__)
 
@@ -53,7 +54,7 @@ def register():
         db.execute(query, {"username": username, "hashed_pass": generate_password_hash(password)})
         db.commit()
         
-        return redirect(url_for("register"))
+        return redirect(url_for("login"))
 
     else:
         return render_template("register.html")
@@ -168,3 +169,99 @@ def index():
         db.commit()
         
         return render_template("index.html", libros=librosObtenidos, esBusqueda="true", text1=text1)
+    
+
+@app.route('/book/<int:book_id>', methods=["GET"])
+@login_required
+def show_book(book_id):
+    if not os.getenv("BOOKS_API_KEY"):
+        raise RuntimeError("BOOKS_API_KEY is not set")
+    
+    
+    # Obtain general info of the book in the db
+    query = """
+            SELECT books.book_title, books.ISBN as isbn, books.book_year,
+            string_agg(authors.author_name, ', ') AS authors
+            FROM books 
+            INNER JOIN book_authors ON books.book_id = book_authors.id_book
+            INNER JOIN authors ON book_authors.id_author = authors.author_id
+            WHERE(books.book_id = :book_id)
+            GROUP BY books.book_id
+            """
+    query = text(query)
+    datos_libro = db.execute(query,{"book_id": book_id}) 
+    datos_libro = datos_libro.fetchone()
+    
+    # Obtain the avg rating and ratings quantity from api
+    api_response = requests.get("https://www.googleapis.com/books/v1/volumes?q=isbn:"+datos_libro.isbn).json()
+    
+    datos_api = {
+        "description": api_response["items"][0]["volumeInfo"]["description"],
+        "image_url": api_response["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"],
+        "avg_rating": api_response["items"][0]["volumeInfo"]["averageRating"],
+        "ratings_quantity": api_response["items"][0]["volumeInfo"]["ratingsCount"]
+    }
+    
+    # Obtain the current user review if it exists
+    query = """
+            SELECT review_points, review_content, created_at as review_date
+            FROM book_reviews 
+            WHERE(
+                review_user = :review_user AND
+                review_book = :book_id
+                )
+            """
+    query = text(query)
+    user_review = db.execute(query,{"book_id": book_id, "review_user": session["user_id"]})
+    if  user_review is None:
+        user_review = False
+    else:
+        user_review = user_review.fetchone()
+        
+    # Obtain the reviews from other users
+    # Obtain the current user review if it exists
+    query = """
+            SELECT review_points, review_content, created_at as review_date, review_user
+            FROM book_reviews 
+            WHERE(
+                review_user != :review_user AND
+                review_book = :book_id
+                )
+            """
+    query = text(query)
+    reviews = db.execute(query,{"book_id": book_id, "review_user": session["user_id"]})
+    if  reviews is None:
+        reviews = False
+    else:
+        reviews = reviews.fetchall()
+        
+    return render_template("book.html", book_id=book_id, datos_libro=datos_libro, datos_api=datos_api, user_review=user_review, reviews=reviews)
+
+
+@app.route('/saveReview', methods=["POST"])
+@login_required
+def saveReview():
+    book_id = request.form.get("book_id")
+    star_count = request.form.get("star_count")
+    review_content = request.form.get("review_content")
+    print(book_id, star_count, review_content)
+    
+    if not book_id or not star_count or not review_content:
+        return apology("Llena todos los campos para guardar la reseña please")
+    
+    if star_count not in ["1", "2", "3", "4", "5"]:
+        return apology("Selecciona una cantidad de estrellas válida please")
+    
+    query = """
+            INSERT INTO book_reviews
+            (review_book, review_user, review_points, review_content)
+            VALUES (:review_book, :review_user, :review_points, :review_content)
+            """
+    query = text(query)
+    
+    db.execute(query,{"review_book": book_id, "review_user": session["user_id"], 
+                        "review_points": star_count, "review_content": review_content})     
+    
+    db.commit()
+    
+    return redirect("/book/"+book_id)
