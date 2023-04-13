@@ -12,6 +12,10 @@
     margin-left: auto;
   }
 
+  .inputBusqueda {
+    width: 65%;
+  }
+  
   label{
     font-size: 16px;
     font-weight: 700;
@@ -19,4 +23,47 @@
 
   #loading_container {
     min-height: 65vh;
+  }
+
+  @media screen and (min-width: 300px) and (max-width: 576px) {
+    #radio_container {
+      flex-wrap: wrap;
+    }
+
+    .inputBusqueda {
+      width: 100%;
+    }
+
+    #books_search_table {
+      font-size: 0.9em;
+    }
+
+    .book_button {
+      font-size: 0.9em;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+}
+  
+/* For Galaxy Fold */
+@media screen and (max-width: 299px) {
+    #radio_container {
+      flex-wrap: wrap;
+    }
+
+    .inputBusqueda {
+      width: 100%;
+    }
+
+    #books_search_table{
+      font-size: 0.5em;
+    }
+
+    .book_button {
+      font-size: 0.5em;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+
+
   }

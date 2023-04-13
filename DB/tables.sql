@@ -5,6 +5,8 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+ALTER TABLE users ADD CONSTRAINT unique_username UNIQUE (username);
+
 CREATE TABLE authors (
     author_id SERIAL PRIMARY KEY NOT NULL,
     author_name VARCHAR(100) NOT NULL UNIQUE,

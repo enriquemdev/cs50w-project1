@@ -219,10 +219,12 @@ def show_book(book_id):
         user_review = user_review.fetchone()
         
     # Obtain the reviews from other users
-    # Obtain the current user review if it exists
     query = """
-            SELECT review_points, review_content, created_at as review_date, review_user
+            SELECT review_points, review_content, 
+            to_char(book_reviews.created_at, 'DD-MM-YYYY HH:MI:SS') as review_date,
+            review_user, users.username
             FROM book_reviews 
+            INNER JOIN users ON book_reviews.review_user = users.user_id
             WHERE(
                 review_user != :review_user AND
                 review_book = :book_id
