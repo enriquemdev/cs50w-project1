@@ -12,9 +12,9 @@
 <div class="container" id="main_container">
 
     <h3 class="mb-6">Busca un libro! </h3>
-    <div style="margin-top: 30px; margin-bottom: 70px;">
+    <div id="formContainer" style="margin-top: 30px; margin-bottom: 70px;">
         <h2 class="mb-4"></h2>
-        <form action="/" method="post">
+        <form id="searchForm" action="/" method="post">
             <div class="mb-3">
                 <div class="mx-auto w-50 mb-2" id="radio_container">
                     <span>
@@ -37,7 +37,7 @@
                 id="text" name="text" placeholder="" required>
     
             </div>
-            <button class="btn btn-primary" type="submit">Buscar</button>
+            <button class="btn btn-primary" type="submit" onclick="wait_book_page(1)">Buscar</button>
         </form>
     </div>
     
@@ -64,7 +64,7 @@
                         <td>{{ libro.authors }}</td>
                         <td>
                             <a class="fs-5 text-white" href="/book/{{ libro.book_id }}">
-                                <button class="btn btn-primary book_button" onclick="wait_book_page()">
+                                <button class="btn btn-primary book_button" onclick="wait_book_page(2)">
                                     <i class="fa-solid fa-book"></i>&nbsp Ver libro
                                 </button>
                             </a>
@@ -114,7 +114,7 @@
     // Inicializar el placeholder del input
     change_input_placeholder();
 
-    function wait_book_page()
+    function wait_book_page(step)
     {
         newHTML = `
         <div id="loading_container" class="d-flex flex-wrap justify-content-center align-items-center">
@@ -127,7 +127,19 @@
         </div>
         `;
 
-        document.getElementById("main_container").innerHTML = newHTML;
+        if (step == 1)
+        {
+            //If the form is submitted, create a div with loading and append it at the end of the form
+            const newElement = document.createElement('div');
+            newElement.innerHTML = newHTML;
+            document.getElementById("formContainer").appendChild(newElement);               
+            document.getElementById("searchForm").submit();
+        }
+        else
+        {
+            //If the indiv book button is clicked, replace all the content with loading
+            document.getElementById("main_container").innerHTML = newHTML;
+        }
     }
 
     
