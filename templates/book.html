@@ -1,0 +1,258 @@
+{% extends "layout.html" %}
+
+{% block styles %}
+    <link href="/static/book.css" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+    Libro: {{ datos_libro.book_title }}
+{% endblock %}
+
+{% block main %}
+<div class="container">
+
+    <!-- Titulo -->
+    <h2 class="mb-5">Libro:  <span>{{ datos_libro.book_title }}</span></h2>
+
+    <!-- Imagen y Descripción -->
+    {% if datos_api %}
+        <div class="row mb-5">
+            <div class="col-4">
+                <img src="{{ datos_api.image_url }}" alt="Portada del libro" class="img-fluid">
+            </div>
+            <div class="col-8">
+                <h3 class="mb-4">Descripción</h3>
+                <p>{{ datos_api.description }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Datos del libro -->
+    <div class="row mb-5">
+
+        <table class="table book_data_table">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">ISBN</th>
+                    <th scope="col">Nombre del libro</th>
+                    <th scope="col">Autor(es)</th>
+                    <th scope="col">Año de publicación</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% if datos_libro %}
+                    <tr>
+                        <td>{{ datos_libro.isbn }}</td>
+                        <td>{{ datos_libro.book_title }}</td>
+                        <td>{{ datos_libro.authors }}</td>
+                        <td>{{ datos_libro.book_year }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">No hay datos para mostrar</td>
+                    </tr>
+                {% endif %} 
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Ratings -->
+    <h3 class="mb-4">Reseñas</h3>
+    <div class="row mb-5">
+        <!-- Left Column -->
+        <div class="col-12 col-md-6 pe-md-4 pb-5 pb-md-0">
+            {% if user_review %}
+                <div id="review-yes">
+                    <h5 class="mb-4">Tu reseña: </h5>
+
+                    <!-- Hacer un for que comience en 1 y termine en 5 -->
+                    {% for i in range(1, 6) %}
+                        <!-- Poner una estrella completa si el rating es igual o mayor a la iteracion -->
+                        {% if user_review.review_points >= i %}
+                            <i class="fa-solid fa-star fa-beat star_icon"></i>
+                        <!-- Poner una estrella vacía si el rating no llega a la iteración actual -->
+                        {% else %}
+                            <i class="fa-regular fa-star fa-beat star_icon"></i>
+                        {% endif %}
+                    {% endfor %}
+
+                    <p>{{ user_review.review_content }}</p>
+
+                </div>
+            {% else %}
+                <div id="review-not">
+                    <h5 class="mb-4">Deja tu reseña!</h5>
+                    <div>
+                        <form action="/saveReview" method="post">
+                            <div class="mb-3">
+                                <div class="mb-3 d-flex flex-wrap justify-content-center" id="star_container">
+                                    <span class=""><label for="" class="form-label">Selecciona una puntuación:</label> &nbsp; &nbsp;</span>
+                                    <span>
+                                        <i class="fa-regular fa-star star_input" points="1"></i>
+                                        <i class="fa-regular fa-star star_input" points="2"></i>
+                                        <i class="fa-regular fa-star star_input" points="3"></i>
+                                        <i class="fa-regular fa-star star_input" points="4"></i>
+                                        <i class="fa-regular fa-star star_input" points="5"></i>
+                                    </span>
+                                </div>
+
+                                <input type="hidden" name="star_count" value="0">
+                                <input type="hidden" name="book_id" value="{{ book_id }}">
+                                
+                                <div class="mb-3">
+                                    <label for="review_content" class="form-label">¿Que opinas de este libro?</label>
+                                    <textarea class="form-control" id="review_content" name="review_content" rows="4"></textarea>
+                                  </div>
+                    
+                            </div>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa-solid fa-share-from-square" style="color: #ffffff;"></i>
+                                &nbsp;Enviar reseña
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-12 col-md-6 ps-md-4">
+            <!-- <h5 class="mb-1">Puntuación de esta App :P</h5>
+            <div class="mb-4">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div> -->
+            {% if datos_api %}
+                <h5 class="mb-1">Puntuación de GoodReads</h5>
+                <p class="mb-2">De un total de {{ datos_api.ratings_quantity }} puntuaciones se ha obtenido un promedio de {{ datos_api.avg_rating }} / 5 estrellas.</p>
+                <div>
+                    <!-- Hacer un for que comience en 1 y termine en 5 -->
+                    {% for i in range(1, 6) %}
+                        <!-- Poner una estrella completa si el rating es igual o mayor a la iteracion -->
+                        {% if datos_api.avg_rating >= i %}
+                            <i class="fa-solid fa-star fa-beat star_icon"></i>
+                        <!-- Poner una estrella media si el rating es igual o mayor a la i menos 0.5(osea i anterior más 0.5) -->
+                        {% elif datos_api.avg_rating >= (i-0.5) %}
+                            <i class="fa-solid fa-star-half-stroke fa-beat star_icon"></i>
+                        <!-- Poner una estrella vacía si el rating no llega a la iteración actual -->
+                        {% else %}
+                            <i class="fa-regular fa-star fa-beat star_icon"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Comentarios -->
+    <h3 class="mb-3">Comentarios</h3>
+    {% for review in reviews %}
+    <div class="container review_container">
+        <div class="row mb-3">
+            <div class="col-8 f-flex justify-content-start">
+                
+                <h6 class="text-start">Nombre de usuario: {{ review.username }}</h6>
+                
+                <span class="d-flex justify-content-start">
+                    <span class="heading-6">Puntuación:</span> &nbsp;
+                    <!-- Hacer un for que comience en 1 y termine en 5 -->
+                    {% for i in range(1, 6) %}
+                        <!-- Poner una estrella completa si el rating es igual o mayor a la iteracion -->
+                        {% if review.review_points >= i %}
+                            <i class="fa-solid fa-star star_icon_sm"></i>
+                        <!-- Poner una estrella vacía si el rating no llega a la iteración actual -->
+                        {% else %}
+                            <i class="fa-regular fa-star star_icon_sm"></i>
+                        {% endif %}
+                    {% endfor %}
+                </span>
+            </div>
+            <div class="col-4 d-flex justify-content-end">
+                <p class="text-secondary review_date">
+                    {{ review.review_date }}
+                </p>
+            </div>
+        </div>
+        <div class="row">
+            <p class="text-start mb-0">
+                <span class="heading-6">Contenido:</span> &nbsp;
+                {{ review.review_content }}
+            </p>
+        </div>
+    </div>
+
+    {% else %}
+        <tr>
+            <td colspan="5">No hay comentarios para este libro.</td>
+        </tr>
+    {% endfor %}
+    
+
+       
+</div>
+
+
+<script>
+    // Obtain star inputs
+    let star_inputs = document.querySelectorAll(".star_input");
+    // Get the value of the hidden input that stores the points of the star inputs
+    let stars_value = document.querySelector("input[name='star_count']").value;
+
+    // Function to paint the stars when hovered and when clicked
+    // If clicked, stores the value of the star clicked in the hidden input
+    function paintStarInputs(event) {
+        console.log("gola");
+        let target = event.target;
+        console.log(target);
+        for (let star_input of star_inputs) {
+            console.log(star_input.getAttribute("points"), target.getAttribute("points"));
+            if (star_input.getAttribute("points") <= target.getAttribute("points")) {
+                star_input.classList.remove("fa-regular");
+                star_input.classList.add("fa-solid");
+            }
+        }
+
+        if (event.type == "click")
+        {
+            stars_value = target.getAttribute("points");
+            document.querySelector("input[name='star_count']").value = stars_value;
+            console.log("click");
+        }
+    }
+
+    // Function to un-paint the stars when the mouse leaves the star container
+    // It unpainns the stars that have a value greater than the value stored in the hidden input
+    function unPaintStarInputs(event) {
+        let target = event.target;
+
+        for (let star_input of star_inputs) {
+            if (star_input.getAttribute("points") > stars_value) {
+                star_input.classList.remove("fa-solid");
+                star_input.classList.add("fa-regular");
+            }
+        }
+    }
+
+    // Add event listeners to the star inputs
+    for (let star_input of star_inputs) {
+        star_input.addEventListener("click", function(event) {
+            paintStarInputs(event);
+        });
+
+        star_input.addEventListener("mousemove", function(event) {
+            paintStarInputs(event);
+        });
+
+        star_input.addEventListener("mouseout", function(event) {
+            unPaintStarInputs(event);
+        });
+    }
+
+    
+</script>
+
+{% endblock %}

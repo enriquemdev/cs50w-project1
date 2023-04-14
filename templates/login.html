@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Log In
+{% endblock %}
+
+{% block main %}
+    <form action="/login" method="post">
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Username" type="text">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Password" type="password">
+        </div>
+        <!--
+            https://flask.palletsprojects.com/en/2.2.x/patterns/viewdecorators/ 
+            On this web says i need to add this input
+        -->
+        <input type="hidden" value="{{ request.args.get('next', '') }}"/>
+        <button class="btn btn-primary" type="submit">Log In</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,40 @@
+.star_icon, .star_input {
+    color: gold;
+    font-size: 1.4em;
+}
+
+.star_icon_sm {
+    color: gold;
+    font-size: 1em;
+}
+
+.review_date {
+    font-size: 0.8em;
+}
+
+.review_container {
+    padding-top: 0.8em;
+    padding-bottom: 0.8em;
+    border-bottom: 0.5px solid #ccc;
+}
+
+.heading-6 {
+    font-weight: 500;
+}
+
+@media screen and (min-width: 300px) and (max-width: 576px) {
+    .book_data_table {
+        font-size: 0.9em;
+    }
+}
+  
+/* For Galaxy Fold */
+@media screen and (max-width: 299px) {
+    .book_data_table {
+        font-size: 0.65em;
+    }
+
+    .review_date {
+        font-size: 0.55em;
+    }
+}
