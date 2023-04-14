@@ -286,7 +286,7 @@ def book_api(isbn):
             SELECT books.book_title, books.ISBN as isbn, books.book_year,
             string_agg(authors.author_name, ', ') AS authors,
             COUNT(book_reviews.review_id) as review_count, AVG(book_reviews.review_points) as review_points
-            FROM books 
+            FROM books
             INNER JOIN book_authors ON books.book_id = book_authors.id_book
             INNER JOIN authors ON book_authors.id_author = authors.author_id
             INNER JOIN book_reviews ON books.book_id = book_reviews.review_book
@@ -295,18 +295,21 @@ def book_api(isbn):
             """
     query = text(query)
     
-    book = db.execute(query,{"ISBN": isbn})     
+    book = db.execute(query,{"ISBN": isbn})
     
     db.commit()
     
-    if book is None:
-        return jsonify({"error": "Invalid ISBN"}), 422
-    else:
+    print(book)
+    if book.rowcount > 0:
+        book = book.fetchone()
+        
         return jsonify({
-                "title": "Memory",
-                "author": "Doug Lloyd",
-                "year": 2015,
-                "isbn": "1632168146",
-                "review_count": 28,
-                "average_score": 5.0
+                "title": book.book_title,
+                "author": book.authors,
+                "year": book.book_year,
+                "isbn": book.isbn,
+                "review_count": book.review_count,
+                "average_score": book.review_points
             })
+    else:
+        return jsonify({"error": "Invalid ISBN"}), 404
