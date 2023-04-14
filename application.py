@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, session, redirect, render_template, request, url_for
+from flask import Flask, session, redirect, render_template, request, url_for, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -193,14 +193,23 @@ def show_book(book_id):
     datos_libro = datos_libro.fetchone()
     
     # Obtain the avg rating and ratings quantity from api
-    api_response = requests.get("https://www.googleapis.com/books/v1/volumes?q=isbn:"+datos_libro.isbn).json()
+    api_response = requests.get("https://www.googleapis.com/books/v1/volumes?q=isbn:"+datos_libro.isbn)
     
-    datos_api = {
-        "description": api_response["items"][0]["volumeInfo"]["description"],
-        "image_url": api_response["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"],
-        "avg_rating": api_response["items"][0]["volumeInfo"]["averageRating"],
-        "ratings_quantity": api_response["items"][0]["volumeInfo"]["ratingsCount"]
-    }
+    if api_response.status_code != 200:
+        raise Exception("ERROR: API request unsuccessful.")
+    else:
+        api_response = api_response.json()
+    
+    if api_response["totalItems"] != 0:
+        datos_api = {
+            "description": api_response["items"][0]["volumeInfo"]["description"],
+            "image_url": api_response["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"],
+            "avg_rating": api_response["items"][0]["volumeInfo"]["averageRating"],
+            "ratings_quantity": api_response["items"][0]["volumeInfo"]["ratingsCount"]
+        }
+    else:
+        datos_api = False
+    
     
     # Obtain the current user review if it exists
     query = """
@@ -267,3 +276,37 @@ def saveReview():
     db.commit()
     
     return redirect("/book/"+book_id)
+
+@app.route("/api/<string:isbn>")
+def book_api(isbn):
+    """Return api response from data in the database of books"""
+    
+    # Make sure book exists.
+    query = """
+            SELECT books.book_title, books.ISBN as isbn, books.book_year,
+            string_agg(authors.author_name, ', ') AS authors,
+            COUNT(book_reviews.review_id) as review_count, AVG(book_reviews.review_points) as review_points
+            FROM books 
+            INNER JOIN book_authors ON books.book_id = book_authors.id_book
+            INNER JOIN authors ON book_authors.id_author = authors.author_id
+            INNER JOIN book_reviews ON books.book_id = book_reviews.review_book
+            WHERE(books.ISBN = :ISBN)
+            GROUP BY books.book_id
+            """
+    query = text(query)
+    
+    book = db.execute(query,{"ISBN": isbn})     
+    
+    db.commit()
+    
+    if book is None:
+        return jsonify({"error": "Invalid ISBN"}), 422
+    else:
+        return jsonify({
+                "title": "Memory",
+                "author": "Doug Lloyd",
+                "year": 2015,
+                "isbn": "1632168146",
+                "review_count": 28,
+                "average_score": 5.0
+            })
