@@ -18,11 +18,15 @@
     {% if datos_api %}
         <div class="row mb-5">
             <div class="col-4">
-                <img src="{{ datos_api.image_url }}" alt="Portada del libro" class="img-fluid">
+                {% if datos_api.image_url != "none" %}
+                    <img src="{{ datos_api.image_url }}" alt="Portada del libro" class="img-fluid">
+                {% endif %}
             </div>
             <div class="col-8">
-                <h3 class="mb-4">Descripción</h3>
-                <p>{{ datos_api.description }}</p>
+                {% if datos_api.description != "none" %}
+                    <h3 class="mb-4">Descripción</h3>
+                    <p>{{ datos_api.description }}</p>
+                {% endif %}  
             </div>
         </div>
     {% endif %}
