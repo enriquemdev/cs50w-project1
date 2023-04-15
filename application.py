@@ -157,8 +157,8 @@ def index():
                     
         query = text(query)
         
-        resultado = db.execute(query,{"ISBN": ("%"+text1+"%"), "book_title": ("%"+text1+"%"), 
-                            "author_name": ("%"+text1+"%")})     
+        resultado = db.execute(query,{"ISBN": ("%"+text1.lower()+"%"), "book_title": ("%"+text1.lower()+"%"), 
+                            "author_name": ("%"+text1.lower()+"%")})     
         
         # This is a list of lists(a list of the rows)
         librosObtenidos = resultado.fetchall()
