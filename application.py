@@ -204,8 +204,8 @@ def show_book(book_id):
         datos_api = {
             "description": api_response["items"][0]["volumeInfo"]["description"],
             "image_url": api_response["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"],
-            "avg_rating": api_response["items"][0]["volumeInfo"]["averageRating"],
-            "ratings_quantity": api_response["items"][0]["volumeInfo"]["ratingsCount"]
+            "avg_rating": api_response["items"][0]["volumeInfo"]["averageRating"] if "averageRating" in api_response["items"][0]["volumeInfo"] else "none",
+            "ratings_quantity": api_response["items"][0]["volumeInfo"]["ratingsCount"] if "ratingsCount" in api_response["items"][0]["volumeInfo"] else "none"
         }
     else:
         datos_api = False

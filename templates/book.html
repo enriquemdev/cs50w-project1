@@ -127,23 +127,25 @@
                 <i class="fa-solid fa-star"></i>
             </div> -->
             {% if datos_api %}
-                <h5 class="mb-1">Puntuación de GoodReads</h5>
-                <p class="mb-2">De un total de {{ datos_api.ratings_quantity }} puntuaciones se ha obtenido un promedio de {{ datos_api.avg_rating }} / 5 estrellas.</p>
-                <div>
-                    <!-- Hacer un for que comience en 1 y termine en 5 -->
-                    {% for i in range(1, 6) %}
-                        <!-- Poner una estrella completa si el rating es igual o mayor a la iteracion -->
-                        {% if datos_api.avg_rating >= i %}
-                            <i class="fa-solid fa-star fa-beat star_icon"></i>
-                        <!-- Poner una estrella media si el rating es igual o mayor a la i menos 0.5(osea i anterior más 0.5) -->
-                        {% elif datos_api.avg_rating >= (i-0.5) %}
-                            <i class="fa-solid fa-star-half-stroke fa-beat star_icon"></i>
-                        <!-- Poner una estrella vacía si el rating no llega a la iteración actual -->
-                        {% else %}
-                            <i class="fa-regular fa-star fa-beat star_icon"></i>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+                {% if datos_api.avg_rating != "none" and datos_api.ratings_quantity != "none" %}
+                    <h5 class="mb-1">Puntuación de GoodReads</h5>
+                    <p class="mb-2">De un total de {{ datos_api.ratings_quantity }} puntuaciones se ha obtenido un promedio de {{ datos_api.avg_rating }} / 5 estrellas.</p>
+                    <div>
+                        <!-- Hacer un for que comience en 1 y termine en 5 -->
+                        {% for i in range(1, 6) %}
+                            <!-- Poner una estrella completa si el rating es igual o mayor a la iteracion -->
+                            {% if datos_api.avg_rating >= i %}
+                                <i class="fa-solid fa-star fa-beat star_icon"></i>
+                            <!-- Poner una estrella media si el rating es igual o mayor a la i menos 0.5(osea i anterior más 0.5) -->
+                            {% elif datos_api.avg_rating >= (i-0.5) %}
+                                <i class="fa-solid fa-star-half-stroke fa-beat star_icon"></i>
+                            <!-- Poner una estrella vacía si el rating no llega a la iteración actual -->
+                            {% else %}
+                                <i class="fa-regular fa-star fa-beat star_icon"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>
