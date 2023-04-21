@@ -174,8 +174,8 @@ def index():
 @app.route('/book/<int:book_id>', methods=["GET"])
 @login_required
 def show_book(book_id):
-    if not os.getenv("BOOKS_API_KEY"):
-        raise RuntimeError("BOOKS_API_KEY is not set")
+    # if not os.getenv("BOOKS_API_KEY"):
+    #     raise RuntimeError("BOOKS_API_KEY is not set")
     
     
     # Obtain general info of the book in the db
